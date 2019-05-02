@@ -1,68 +1,89 @@
-let screenSize = { w: 580, h: 580 };
-let gNodeRadius = 15;
-let gPartOfSpeed = 0.1;
-let gDots = [];
-let gCountsY = [];
-let gCountsX = [];
+let screenSize = { w: 580, h: 580 },
+    gDots,
+    gCountsX,
+    gCountsY,
+    gHeight = 20,
+    gStepDraw = 1,
+    gSkewX = 1.0,
+    gSkewY = 1.0;
 
 function setup()
 {
     createCanvas(screenSize.w, screenSize.h);
     frameRate(960);
 
-    for(let i = 0; i < screenSize.w; i++)
-    {
-        gCountsY.push(0);
-        gCountsX.push(0);
-    }
+    let interface = document.createElement('div');
+
+    interface.innerHTML += '<div><nobr>Height: <div id="heightDiv">' + gHeight + '</div></nobr>' +
+        '<input type="range" value="' + gHeight + '" min="10" max="100" step="5" oninput="heightChanged(this);"></div>';
+
+    interface.innerHTML += '<div><nobr>Step draw: <div id="stepDiv">' + gStepDraw + '</div></nobr>' +
+        '<input type="range" value="' + gStepDraw + '" min="1" max="10" step="1" oninput="stepChanged(this);"></div>';
+
+    interface.innerHTML += '<div><nobr>Skew X: <div id="skewDivX">' + gSkewX + '</div></nobr>' +
+        '<input type="range" value="' + gSkewX + '" min="0.1" max="2" step="0.1" oninput="skewDragedX(this);" onchange="skewChangedX(this)"></div>';
+
+    interface.innerHTML += '<div><nobr>Skew Y: <div id="skewDivY">' + gSkewY + '</div></nobr>' +
+        '<input type="range" value="' + gSkewY + '" min="0.1" max="2" step="0.1" oninput="skewDragedY(this);" onchange="skewChangedY(this)"></div>';
+
+    document.getElementsByTagName('body')[0].appendChild(interface);
+    
+    clearHistory();
 }
 
 function draw()
 {
     background(255);
 
-    gDots.push({ x : normalDistRandom(0, 1, 1) * screenSize.w, y : normalDistRandom(0, 1, 1) * screenSize.h})
+// generate new point position
+    gDots.push({ x : normalDistRandom(0, 1, gSkewX) * screenSize.w, y : normalDistRandom(0, 1, gSkewY) * screenSize.h})
     
+// draw all points
     stroke('purple');
     strokeWeight(2);
     gDots.forEach(d => { point(d.x, d.y);
         gCountsY[Math.floor(d.x)]++; gCountsX[Math.floor(d.y)]++; });
 
-    let sumY = gCountsY.reduce((total, num) => { return total + num; });
+// count points for columns and rows
     let sumX = gCountsX.reduce((total, num) => { return total + num; });
+    let sumY = gCountsY.reduce((total, num) => { return total + num; });
 
     strokeWeight(1);
 
-    stroke('green');
-    fill('lightGreen');
-    beginShape();
-    vertex(0, 0);
-    for(let i = 0; i < gCountsY.length; i+=1)
-    {
-        vertex(i, 20 * screenSize.h * gCountsY[i] / sumY);
-    }
-    vertex(screenSize.w, 0);
-    endShape();
-
-// **************************************************************
-
+// draw red(left) distribution
     stroke('red');
     fill('pink');
+
     beginShape();
     vertex(0, 0);
-    for(let i = 0; i < gCountsX.length; i+=1)
+    for(let i = 0; i < gCountsX.length; i += gStepDraw)
     {
-        vertex(20 * screenSize.w * gCountsX[i] / sumX, i);
+        vertex(gHeight * screenSize.w * gCountsX[i] / sumX, i);
     }
     vertex(0, screenSize.h);
     endShape();
 
+// draw green(upper) distribution
+    stroke('green');
+    fill('lightGreen');
+
+    beginShape();
+    vertex(0, 0);
+    for(let i = 0; i < gCountsY.length; i += gStepDraw)
+    {
+        vertex(i, gHeight * screenSize.h * gCountsY[i] / sumY);
+    }
+    vertex(screenSize.w, 0);
+    endShape();
+
+// black stroke
     stroke(0);
     noFill();
     rect(0, 0, screenSize.w, screenSize.h);
 }
 
-function normalDistRandom(min, max, skew) {
+function normalDistRandom(min, max, skew)
+{
     var u = 0, v = 0;
     while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
     while(v === 0) v = Math.random();
@@ -74,4 +95,51 @@ function normalDistRandom(min, max, skew) {
     num *= max - min; // Stretch to fill range
     num += min; // offset to min
     return num;
+}
+
+function heightChanged(slider)
+{
+    gHeight = parseInt(slider.value);
+    heightDiv.innerHTML = gHeight;
+}
+
+function stepChanged(slider)
+{
+    gStepDraw = parseInt(slider.value);
+    stepDiv.innerHTML = gStepDraw;
+}
+
+function skewDragedX(slider)
+{
+    skewDivX.innerHTML = slider.value;
+}
+
+function skewChangedX(slider)
+{
+    gSkewX = parseFloat(slider.value);
+    clearHistory();
+}
+
+function skewDragedY(slider)
+{
+    skewDivY.innerHTML = slider.value;
+}
+
+function skewChangedY(slider)
+{
+    gSkewY = parseFloat(slider.value);
+    clearHistory();
+}
+
+function clearHistory()
+{
+    gDots = [];
+    gCountsX = [];
+    gCountsY = [];
+
+    for(let i = 0; i < screenSize.w; i++)
+    {
+        gCountsY.push(0);
+        gCountsX.push(0);
+    }
 }
