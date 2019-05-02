@@ -55,12 +55,12 @@ function draw()
     fill('pink');
 
     beginShape();
-    vertex(0, 0);
+    curveVertex(0, 0);
     for(let i = 0; i < gCountsX.length; i += gStepDraw)
     {
-        vertex(gHeight * screenSize.w * gCountsX[i] / sumX, i);
+        curveVertex(gHeight * screenSize.w * gCountsX[i] / sumX, i);
     }
-    vertex(0, screenSize.h);
+    curveVertex(0, screenSize.h);
     endShape();
 
 // draw green(upper) distribution
@@ -68,12 +68,12 @@ function draw()
     fill('lightGreen');
 
     beginShape();
-    vertex(0, 0);
+    curveVertex(0, 0);
     for(let i = 0; i < gCountsY.length; i += gStepDraw)
     {
-        vertex(i, gHeight * screenSize.h * gCountsY[i] / sumY);
+        curveVertex(i, gHeight * screenSize.h * gCountsY[i] / sumY);
     }
-    vertex(screenSize.w, 0);
+    curveVertex(screenSize.w, 0);
     endShape();
 
 // black stroke
