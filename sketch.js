@@ -5,7 +5,8 @@ let screenSize = { w: 580, h: 580 },
     gHeight = 20,
     gStepDraw = 1,
     gSkewX = 1.0,
-    gSkewY = 1.0;
+    gSkewY = 1.0,
+    gShowTotal = false;
 
 function setup()
 {
@@ -25,6 +26,8 @@ function setup()
 
     interface.innerHTML += '<div><nobr>Skew Y: <div id="skewDivY">' + gSkewY + '</div></nobr>' +
         '<input type="range" value="' + gSkewY + '" min="0.1" max="2" step="0.1" oninput="skewDragedY(this);" onchange="skewChangedY(this)"></div>';
+
+    interface.innerHTML += '<div><nobr>Show total: <input type="checkbox" onchange="gShowTotal = this.checked;"></div>';
 
     document.getElementsByTagName('body')[0].appendChild(interface);
     
@@ -50,19 +53,6 @@ function draw()
 
     strokeWeight(1);
 
-// draw red(left) distribution
-    stroke('red');
-    fill('pink');
-
-    beginShape();
-    curveVertex(0, 0);
-    for(let i = 0; i < gCountsY.length; i += gStepDraw)
-    {
-        curveVertex(gHeight * screenSize.w * gCountsY[i] / sumX, i);
-    }
-    curveVertex(0, screenSize.h);
-    endShape();
-
 // draw green(upper) distribution
     stroke('green');
     fill('lightGreen');
@@ -71,10 +61,39 @@ function draw()
     curveVertex(0, 0);
     for(let i = 0; i < gCountsX.length; i += gStepDraw)
     {
-        curveVertex(i, gHeight * screenSize.h * gCountsX[i] / sumY);
+        curveVertex(i, gHeight * screenSize.h * gCountsX[i] / sumX);
     }
     curveVertex(screenSize.w, 0);
     endShape();
+
+// draw red(left) distribution
+    stroke('red');
+    fill('pink');
+
+    beginShape();
+    curveVertex(0, 0);
+    for(let i = 0; i < gCountsY.length; i += gStepDraw)
+    {
+        curveVertex(gHeight * screenSize.w * gCountsY[i] / sumY, i);
+    }
+    curveVertex(0, screenSize.h);
+    endShape();
+
+// draw blue(lower) distribution: sum of green and red
+    if(gShowTotal && gCountsX.length == gCountsY.length)
+    {
+        stroke('Blue');
+        fill('lightBlue');
+
+        beginShape();
+        curveVertex(0, 0);
+        for(let i = 0; i < gCountsX.length; i += gStepDraw)
+        {
+            curveVertex(i, screenSize.h - gHeight * screenSize.h * (gCountsX[i] + gCountsY[i]) / (sumX + sumY));
+        }
+        curveVertex(screenSize.w, 0);
+        endShape();
+    }
 
 // black stroke
     stroke(0);
