@@ -42,7 +42,7 @@ function draw()
     stroke('purple');
     strokeWeight(2);
     gDots.forEach(d => { point(d.x, d.y);
-        gCountsY[Math.floor(d.x)]++; gCountsX[Math.floor(d.y)]++; });
+        gCountsX[Math.floor(d.x)]++; gCountsY[Math.floor(d.y)]++; });
 
 // count points for columns and rows
     let sumX = gCountsX.reduce((total, num) => { return total + num; });
@@ -56,9 +56,9 @@ function draw()
 
     beginShape();
     curveVertex(0, 0);
-    for(let i = 0; i < gCountsX.length; i += gStepDraw)
+    for(let i = 0; i < gCountsY.length; i += gStepDraw)
     {
-        curveVertex(gHeight * screenSize.w * gCountsX[i] / sumX, i);
+        curveVertex(gHeight * screenSize.w * gCountsY[i] / sumX, i);
     }
     curveVertex(0, screenSize.h);
     endShape();
@@ -69,9 +69,9 @@ function draw()
 
     beginShape();
     curveVertex(0, 0);
-    for(let i = 0; i < gCountsY.length; i += gStepDraw)
+    for(let i = 0; i < gCountsX.length; i += gStepDraw)
     {
-        curveVertex(i, gHeight * screenSize.h * gCountsY[i] / sumY);
+        curveVertex(i, gHeight * screenSize.h * gCountsX[i] / sumY);
     }
     curveVertex(screenSize.w, 0);
     endShape();
@@ -139,7 +139,7 @@ function clearHistory()
 
     for(let i = 0; i < screenSize.w; i++)
     {
-        gCountsY.push(0);
         gCountsX.push(0);
+        gCountsY.push(0);
     }
 }
